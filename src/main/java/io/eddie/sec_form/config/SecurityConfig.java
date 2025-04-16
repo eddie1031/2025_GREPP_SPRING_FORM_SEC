@@ -8,8 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -56,8 +54,17 @@ public class SecurityConfig {
                         auth -> {
                             auth.requestMatchers("/signup", "/signin")
                                     .anonymous()
-                                .requestMatchers("/users/**")
-                                    .hasRole("MEMBER")
+                                .requestMatchers("/user/**")
+//                                    .hasRole("MEMBER")
+//                                    .hasAnyRole("MEMBER", "MANAGER", "ADMIN")
+                                    .hasAnyAuthority("MEMBER", "MANAGER", "ADMIN")
+                                .requestMatchers("/manager/**")
+//                                    .hasRole("MANAGER") // MANAGER, ROLE_MANAGER
+//                                    .hasAnyRole("MANAGER", "ADMIN") // ROLE_MANAGER, ROLE_ADMIN
+                                    .hasAnyAuthority("MANAGER", "ADMIN")
+                                .requestMatchers("/admin/**")
+//                                    .hasRole("ADMIN")
+                                    .hasAuthority("ADMIN")
                                 .anyRequest()
 //                                    .denyAll();
                                     .authenticated();
@@ -66,24 +73,26 @@ public class SecurityConfig {
                 .build();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-
-        String targetPwd = "1234";
-        String encoded = passwordEncoder().encode(targetPwd);
-
-        log.info("encoded = {}", encoded);
-
-        manager.createUser(
-                User.withUsername("user")
-                        .password(encoded)
-                        .build()
-        );
-
-        return manager;
-
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+//
+//        String targetPwd = "1234";
+//        String encoded = passwordEncoder().encode(targetPwd);
+//
+//        log.info("encoded = {}", encoded);
+//
+//        manager.createUser(
+//                User.withUsername("user")
+//                        .password(encoded)
+////                        .roles("ADMIN") // ROLE_ADMIN
+//                        .authorities("ADMIN")
+//                        .build()
+//        );
+//
+//        return manager;
+//
+//    }
 
 
 }
